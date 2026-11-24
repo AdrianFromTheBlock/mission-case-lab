@@ -1,0 +1,200 @@
+"""Thirteen organizational functions restated for a nonprofit.
+
+A function is a responsibility, not a department. The sales name is a
+comparison label. It is not scored.
+"""
+
+FUNCTIONS = [
+    {
+        "id": "F01",
+        "sales_name": "Product research and development",
+        "mission_name": "Program design",
+        "purpose": "Identify the outcome that matters, and for whom.",
+        "adaptation": "Assortment and product launch become program design. Relevance is mission fit, not launch profitability.",
+        "mode": "internal",
+        "rejected_metric": "New-product profit",
+        "mission_metric": "Outcome definition and beneficiary fit",
+    },
+    {
+        "id": "F02",
+        "sales_name": "Procurement and supplier management",
+        "mission_name": "Resource acquisition",
+        "purpose": "Acquire goods, services, and donated inputs the mission actually uses.",
+        "adaptation": "Donated goods are still a supply dependency. Record restriction, condition, and handling cost.",
+        "mode": "hybrid",
+        "rejected_metric": "Purchase-price variance alone",
+        "mission_metric": "Landed cost of usable inputs, including donated-goods handling",
+    },
+    {
+        "id": "F03",
+        "sales_name": "Production and processing",
+        "mission_name": "Service provision",
+        "purpose": "Create the mission result. This is not a factory score.",
+        "adaptation": "No manufacturing throughput is invented. If a shop alters donated goods, that activity stays on the shop track.",
+        "mode": "internal",
+        "rejected_metric": "Unit manufacturing cost",
+        "mission_metric": "Service units completed to standard",
+    },
+    {
+        "id": "F04",
+        "sales_name": "Quality management",
+        "mission_name": "Service integrity",
+        "purpose": "Verify that the service matches the promise made to beneficiaries and funders.",
+        "adaptation": "Defect rate becomes harm, error, and standards failure — not warranty cost.",
+        "mode": "internal",
+        "rejected_metric": "Warranty claims",
+        "mission_metric": "Standards met, harm events, recurrence",
+    },
+    {
+        "id": "F05",
+        "sales_name": "Inventory management",
+        "mission_name": "Supplies and restricted stores",
+        "purpose": "Preserve and allocate supplies without treating restricted goods as free merchandise.",
+        "adaptation": "Program supplies and shop inventory are separate pools. Shared storage is allocated once.",
+        "mode": "internal",
+        "rejected_metric": "Merchandise turnover as a mission score",
+        "mission_metric": "Usable supply availability and restriction compliance",
+    },
+    {
+        "id": "F06",
+        "sales_name": "Marketing",
+        "mission_name": "Mission communication",
+        "purpose": "Communicate the work to the people who need it and the people who fund it — separately.",
+        "adaptation": "Acquisition cost of donors is not beneficiary demand.",
+        "mode": "internal",
+        "rejected_metric": "Customer acquisition cost blended with donor cost",
+        "mission_metric": "Reach to eligible people, and a separate donor-communication record",
+    },
+    {
+        "id": "F07",
+        "sales_name": "Sales",
+        "mission_name": "Fundraising and eligibility",
+        "purpose": "Bring in support and decide who may receive the service. These are not one conversion rate.",
+        "adaptation": "Where the beneficiary does not pay, there is no sale. Eligibility accuracy and restricted-fund yield stay apart.",
+        "mode": "internal",
+        "rejected_metric": "Sales conversion and realized price",
+        "mission_metric": "Eligible people reached; restricted funds raised against purpose",
+    },
+    {
+        "id": "F08",
+        "sales_name": "Logistics and fulfillment",
+        "mission_name": "Beneficiary delivery",
+        "purpose": "Get the service or good to the person it is for, on the commitment made.",
+        "adaptation": "Order accuracy becomes delivery to the right beneficiary, not a retail shipment score.",
+        "mode": "internal",
+        "rejected_metric": "On-time retail shipment",
+        "mission_metric": "Committed service encounters completed",
+    },
+    {
+        "id": "F09",
+        "sales_name": "Customer support",
+        "mission_name": "Participant support",
+        "purpose": "Maintain the relationship after the encounter, and feed problems back to the program.",
+        "adaptation": "Churn is not the mission metric. Unresolved harm and lost follow-through are.",
+        "mode": "internal",
+        "rejected_metric": "Customer lifetime value",
+        "mission_metric": "Follow-through and unresolved participant problems",
+    },
+    {
+        "id": "F10",
+        "sales_name": "Finance and accounting",
+        "mission_name": "Stewardship",
+        "purpose": "Show sustainability and restricted-fund integrity as two results, not one margin.",
+        "adaptation": "Operating surplus does not prove mission success. Restricted cash is not available for unrestricted bills.",
+        "mode": "internal",
+        "rejected_metric": "Net profit margin as the health score",
+        "mission_metric": "Unrestricted liquidity, restriction compliance, mission output beside it",
+    },
+    {
+        "id": "F11",
+        "sales_name": "Organizational support",
+        "mission_name": "Organizational support",
+        "purpose": "Keep people, systems, and facilities able to do the work.",
+        "adaptation": "Volunteer capacity is a resource with limits, not free infinite labor.",
+        "mode": "internal",
+        "rejected_metric": "Headcount activity",
+        "mission_metric": "Availability of the support the programs actually use",
+    },
+    {
+        "id": "F12",
+        "sales_name": "Management",
+        "mission_name": "Management",
+        "purpose": "Coordinate programs so a local win does not break the whole.",
+        "adaptation": "A strong shop month that consumes the shared driver is not an organizational improvement.",
+        "mode": "internal",
+        "rejected_metric": "Activity volume",
+        "mission_metric": "Protected objective still on track after tradeoffs",
+    },
+    {
+        "id": "F13",
+        "sales_name": "Governance",
+        "mission_name": "Governance",
+        "purpose": "Hold purpose, authority, and restricted-fund accountability.",
+        "adaptation": "Board authority is not staff convenience. Private benefit and purpose drift are hard gates, not score deductions.",
+        "mode": "internal",
+        "rejected_metric": "Owner return",
+        "mission_metric": "Authority clarity, restriction oversight, no private benefit",
+    },
+]
+
+PARTIES = [
+    {
+        "id": "beneficiary",
+        "title": "Beneficiary",
+        "detail": "Receives the service. Often pays nothing. Their outcome is the protected objective.",
+    },
+    {
+        "id": "payer",
+        "title": "Payer",
+        "detail": "Grant, contract, or fee that funds delivery. May never meet the beneficiary.",
+    },
+    {
+        "id": "donor",
+        "title": "Donor",
+        "detail": "Gives money or goods. A restriction travels with the gift. A donor is not a customer.",
+    },
+    {
+        "id": "board",
+        "title": "Governing board",
+        "detail": "Holds mission, major policy, and executive accountability. Staff cannot approve their own exception.",
+    },
+]
+
+DISCOVERY = [
+    "Who receives the service, who pays, and who governs — as three different parties?",
+    "Which cash and goods are restricted, to what purpose, and through what date?",
+    "What single outcome is protected, and what measure would show it moved?",
+    "Which of F01–F13 are actually performed? State N/A with a reason; do not drop the function.",
+    "Can unrestricted cash meet near-term obligations without borrowing restricted funds?",
+    "Which people, vehicles, or rooms are shared by the mission and any earned-income activity?",
+    "What would a qualified reviewer need before any tax, employment, or legal conclusion?",
+]
+
+# Only effectiveness is evidenced. Coverage must stay at 25% and provisional.
+PARTIAL_SCORES = {"effectiveness": 75}
+
+NORTH_RIVER = {
+    "label": "SYNTHETIC",
+    "name": "North River Family Services",
+    "protected_objective": "Households complete a stable housing plan",
+    "authority": "Board approves restricted-fund exceptions",
+    "legal_form": "Nonprofit corporation. Tax status is not concluded in this model.",
+    "lifecycle": "Mature program, restructuring the shop",
+    "funds": {
+        "restricted_program_grant": 42000,
+        "restricted_purpose": "Housing plans only",
+        "unrestricted_gifts": 18000,
+        "shop_proceeds": 8000,
+    },
+    "shared_driver_hours": 40,
+    "capacities": {"demand": 1350, "eligibility": 1400, "service": 1200, "delivery": 800},
+    "scenario": {
+        "base": 800,
+        "increment": 300,
+        "demand": 1350,
+        "contribution": 16,
+        "recurring": 1000,
+        "default_realization": 0.7,
+    },
+    "readiness": {"capability": 0.9, "opportunity": 0.2, "motivation": 0.8},
+}

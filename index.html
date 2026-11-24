@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mission case lab</title>
+<style>
+  :root {
+    --paper: #f3eee6;
+    --ink: #1e1a16;
+    --muted: #6d645b;
+    --line: #ddd4c8;
+    --brass: #8c5a32;
+    --brass-soft: #efe4d8;
+    --brass-fg: #fffaf4;
+    --alert: #8c3a2f;
+    --alert-soft: #f3e4e0;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.45 Georgia, "Iowan Old Style", serif; }
+  button, input, select { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  header { border-bottom: 1px solid var(--line); }
+  .wrap { max-width: 72rem; margin: 0 auto; padding: 1rem 1.25rem 2.5rem; }
+  .kicker { letter-spacing: 0.16em; text-transform: uppercase; font-size: 0.75rem; color: var(--brass); font-family: system-ui, sans-serif; }
+  h1 { font-weight: 500; font-size: 2.1rem; margin: 0.2rem 0; }
+  h2 { font-weight: 500; font-size: 1.5rem; margin: 0; }
+  h3 { font-weight: 500; margin: 0.2rem 0; }
+  .muted { color: var(--muted); font-family: system-ui, sans-serif; font-size: 0.92rem; }
+  .row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: flex-end; justify-content: space-between; }
+  .tabs { display: flex; gap: 0.4rem; overflow-x: auto; padding: 0.75rem 0 0.2rem; }
+  .pill { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 0.55rem 0.9rem; font-family: system-ui, sans-serif; font-size: 0.9rem; }
+  .pill.on { background: var(--brass); color: var(--brass-fg); border-color: var(--brass); }
+  .pill.dark { background: var(--ink); color: var(--brass-fg); border-color: var(--ink); }
+  .layout { display: grid; gap: 1rem; }
+  @media (min-width: 960px) { .layout { grid-template-columns: 1fr 18rem; } }
+  .card { border: 1px solid var(--line); border-radius: 14px; padding: 1rem 1.1rem; background: var(--paper); }
+  .soft { background: var(--brass-soft); }
+  .grid2 { display: grid; gap: 0.7rem; }
+  @media (min-width: 700px) { .grid2 { grid-template-columns: 1fr 1fr; } .grid3 { grid-template-columns: 1fr 1fr 1fr; } }
+  .grid3 { display: grid; gap: 0.7rem; }
+  .fn { display: flex; width: 100%; text-align: left; gap: 0.7rem; padding: 0.7rem 0.9rem; border: 0; border-bottom: 1px solid var(--line); background: transparent; }
+  .fn.on { background: var(--brass-soft); }
+  .id { color: var(--brass); width: 2.6rem; flex: none; }
+  .stat b { display: block; font-size: 1.55rem; font-weight: 500; }
+  ul.clean { list-style: none; margin: 0; padding: 0; }
+  ul.clean li { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--line); padding: 0.3rem 0; font-family: system-ui, sans-serif; font-size: 0.92rem; }
+  ol.q { margin: 0.8rem 0 0; padding: 0; list-style: none; }
+  ol.q li { display: flex; gap: 0.7rem; margin: 0.35rem 0; font-family: system-ui, sans-serif; font-size: 0.92rem; }
+  .warn { border-color: var(--alert); background: var(--alert-soft); }
+  label.line { display: flex; gap: 0.5rem; align-items: flex-start; font-family: system-ui, sans-serif; font-size: 0.92rem; }
+  input[type="range"] { width: 100%; accent-color: var(--brass); }
+  aside { align-self: start; }
+  .sans { font-family: system-ui, sans-serif; }
+  svg { width: 100%; height: 220px; }
+  .hide { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="kicker">OAS · nonprofit overlay</p>
+    <div class="row">
+      <div>
+        <h1>Mission case lab</h1>
+        <p class="muted" style="max-width:36rem">A function is a responsibility, not a department. For a nonprofit, profitability is not the objective, and a sales label is not a mission score. North River is synthetic.</p>
+      </div>
+      <div>
+        <button class="pill dark" id="btn-river" type="button">North River (synthetic)</button>
+        <button class="pill" id="btn-empty" type="button">Empty case</button>
+      </div>
+    </div>
+    <nav class="tabs" id="tabs"></nav>
+  </header>
+  <div class="layout">
+    <main id="main"></main>
+    <aside class="card" id="inspector"></aside>
+  </div>
+</div>
+<script>
+const WEIGHTS = { effectiveness: 0.25, efficiency: 0.2, reliability: 0.15, resilience: 0.2, adaptability: 0.1, control_and_integrity: 0.1 };
+const DIMENSIONS = Object.keys(WEIGHTS);
+const FUNCTIONS = [
+  ["F01","Product research and development","Program design","Identify the outcome that matters, and for whom.","Assortment and product launch become program design. Relevance is mission fit, not launch profitability.","internal","New-product profit","Outcome definition and beneficiary fit"],
+  ["F02","Procurement and supplier management","Resource acquisition","Acquire goods, services, and donated inputs the mission actually uses.","Donated goods are still a supply dependency. Record restriction, condition, and handling cost.","hybrid","Purchase-price variance alone","Landed cost of usable inputs, including donated-goods handling"],
+  ["F03","Production and processing","Service provision","Create the mission result. This is not a factory score.","No manufacturing throughput is invented. If a shop alters donated goods, that activity stays on the shop track.","internal","Unit manufacturing cost","Service units completed to standard"],
+  ["F04","Quality management","Service integrity","Verify that the service matches the promise made to beneficiaries and funders.","Defect rate becomes harm, error, and standards failure — not warranty cost.","internal","Warranty claims","Standards met, harm events, recurrence"],
+  ["F05","Inventory management","Supplies and restricted stores","Preserve and allocate supplies without treating restricted goods as free merchandise.","Program supplies and shop inventory are separate pools. Shared storage is allocated once.","internal","Merchandise turnover as a mission score","Usable supply availability and restriction compliance"],
+  ["F06","Marketing","Mission communication","Communicate the work to the people who need it and the people who fund it — separately.","Acquisition cost of donors is not beneficiary demand.","internal","Customer acquisition cost blended with donor cost","Reach to eligible people, and a separate donor-communication record"],
+  ["F07","Sales","Fundraising and eligibility","Bring in support and decide who may receive the service. These are not one conversion rate.","Where the beneficiary does not pay, there is no sale. Eligibility accuracy and restricted-fund yield stay apart.","internal","Sales conversion and realized price","Eligible people reached; restricted funds raised against purpose"],
+  ["F08","Logistics and fulfillment","Beneficiary delivery","Get the service or good to the person it is for, on the commitment made.","Order accuracy becomes delivery to the right beneficiary, not a retail shipment score.","internal","On-time retail shipment","Committed service encounters completed"],
+  ["F09","Customer support","Participant support","Maintain the relationship after the encounter, and feed problems back to the program.","Churn is not the mission metric. Unresolved harm and lost follow-through are.","internal","Customer lifetime value","Follow-through and unresolved participant problems"],
+  ["F10","Finance and accounting","Stewardship","Show sustainability and restricted-fund integrity as two results, not one margin.","Operating surplus does not prove mission success. Restricted cash is not available for unrestricted bills.","internal","Net profit margin as the health score","Unrestricted liquidity, restriction compliance, mission output beside it"],
+  ["F11","Organizational support","Organizational support","Keep people, systems, and facilities able to do the work.","Volunteer capacity is a resource with limits, not free infinite labor.","internal","Headcount activity","Availability of the support the programs actually use"],
+  ["F12","Management","Management","Coordinate programs so a local win does not break the whole.","A strong shop month that consumes the shared driver is not an organizational improvement.","internal","Activity volume","Protected objective still on track after tradeoffs"],
+  ["F13","Governance","Governance","Hold purpose, authority, and restricted-fund accountability.","Board authority is not staff convenience. Private benefit and purpose drift are hard gates, not score deductions.","internal","Owner return","Authority clarity, restriction oversight, no private benefit"]
+].map(([id,sales,mission,purpose,adaptation,mode,rejected,metric]) => ({id,sales,mission,purpose,adaptation,mode,rejected,metric}));
+const PARTIES = [
+  ["Beneficiary","Receives the service. Often pays nothing. Their outcome is the protected objective."],
+  ["Payer","Grant, contract, or fee that funds delivery. May never meet the beneficiary."],
+  ["Donor","Gives money or goods. A restriction travels with the gift. A donor is not a customer."],
+  ["Governing board","Holds mission, major policy, and executive accountability. Staff cannot approve their own exception."]
+];
+const DISCOVERY = [
+  "Who receives the service, who pays, and who governs — as three different parties?",
+  "Which cash and goods are restricted, to what purpose, and through what date?",
+  "What single outcome is protected, and what measure would show it moved?",
+  "Which of F01–F13 are actually performed? State N/A with a reason; do not drop the function.",
+  "Can unrestricted cash meet near-term obligations without borrowing restricted funds?",
+  "Which people, vehicles, or rooms are shared by the mission and any earned-income activity?",
+  "What would a qualified reviewer need before any tax, employment, or legal conclusion?"
+];
+const WORKSPACES = ["brief","parties","functions","funds","health","scenario","actions"];
+const STATUS_LABEL = {
+  critical: "Critical — review now",
+  unresolved: "Unresolved critical condition",
+  at_risk: "At risk",
+  provisional: "Provisional",
+  no_flag_detected: "No flag on recorded conditions"
+};
+
+function health(scores) {
+  const keys = Object.keys(WEIGHTS).slice().sort();
+  const assessed = keys.filter(k => scores[k] != null);
+  const total = keys.reduce((s,k) => s + WEIGHTS[k], 0);
+  const known = assessed.reduce((s,k) => s + WEIGHTS[k], 0);
+  const score = known ? assessed.reduce((s,k) => s + WEIGHTS[k] * scores[k], 0) / known : null;
+  const coverage = total ? (100 * known) / total : null;
+  return { score, coverage, provisional: coverage == null || coverage < 70 };
+}
+function band(score) {
+  if (score == null) return "Unknown";
+  if (score >= 90) return "Exceptional";
+  if (score >= 75) return "Healthy";
+  if (score >= 50) return "Adequate";
+  if (score >= 25) return "Vulnerable";
+  return "Severe";
+}
+function readiness(c,o,m) {
+  const vals = [c,o,m];
+  if (vals.some(v => v == null)) {
+    const hi = vals.reduce((p,v) => p * (v == null ? 1 : v), 1);
+    return { point: null, range: [0, hi] };
+  }
+  const point = c * o * m;
+  return { point, range: [point, point] };
+}
+function systemStatus(conditions, provisional) {
+  if (conditions.some(c => c.critical && c.status === "fail")) return "critical";
+  if (conditions.some(c => c.critical && c.status === "unknown")) return "unresolved";
+  if (conditions.some(c => c.status === "watch" || c.status === "fail")) return "at_risk";
+  if (!conditions.length || provisional || conditions.some(c => c.status === "unknown")) return "provisional";
+  return "no_flag_detected";
+}
+function round6(n) { return Math.round(n * 1e6) / 1e6; }
+function realize(base, increment, demand, r, contribution, recurring) {
+  const before = Math.min(base, demand);
+  const after = Math.min(demand, round6(base + increment * r));
+  const incremental = round6((after - before) * contribution - recurring);
+  const breakEvenUnits = contribution > 0 ? Math.ceil(recurring / contribution - 1e-9) : null;
+  const potential = Math.min(increment, Math.max(demand - base, 0));
+  const fraction = increment > 0 && contribution > 0 && potential * contribution >= recurring
+    ? recurring / (increment * contribution) : null;
+  return { baseline: before, throughput: after, incremental, breakEvenUnits, breakEvenRealization: fraction };
+}
+function gate(flags) {
+  if (flags.prohibited) return "prohibited";
+  if (flags.refer) return "refer";
+  if (flags.mandatory) return "mandatory";
+  if (flags.blocked) return "blocked";
+  if (flags.needsEvidence) return "needs_evidence";
+  return "eligible";
+}
+function money(n) {
+  const sign = n < 0 ? "−" : "";
+  return sign + "$" + Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 });
+}
+
+const state = {
+  empty: false,
+  workspace: "brief",
+  lens: "mission",
+  selected: "F07",
+  scores: { effectiveness: 75 },
+  payrollFail: false,
+  restrictionUnknown: false,
+  realization: 0.7,
+  capability: 0.9,
+  opportunity: 0.2,
+  motivation: 0.8,
+  missionHours: 24,
+  f03: "internal"
+};
+
+function esc(s) {
+  return String(s).replace(/[&<>"]/g, function (c) {
+    return "&#" + c.charCodeAt(0) + ";";
+  });
+}
+
+function render() {
+  const tabs = document.getElementById("tabs");
+  tabs.innerHTML = WORKSPACES.map(w => {
+    const on = state.workspace === w ? " on" : "";
+    return `<button class="pill${on}" data-ws="${w}" type="button">${w[0].toUpperCase() + w.slice(1)}</button>`;
+  }).join("");
+  document.getElementById("btn-river").className = "pill" + (state.empty ? "" : " dark");
+  document.getElementById("btn-empty").className = "pill" + (state.empty ? " dark" : "");
+
+  const scores = state.empty ? {} : state.scores;
+  const h = health(scores);
+  const ready = readiness(state.empty ? null : state.capability, state.empty ? null : state.opportunity, state.empty ? null : state.motivation);
+  const conditions = state.empty
+    ? [
+        { critical: true, status: "unknown" },
+        { critical: true, status: "unknown" },
+        { critical: true, status: "unknown" }
+      ]
+    : [
+        { critical: true, status: state.payrollFail ? "fail" : "pass" },
+        { critical: true, status: state.restrictionUnknown ? "unknown" : "pass" },
+        { critical: true, status: "pass" },
+        { critical: false, status: "watch" }
+      ];
+  const status = systemStatus(conditions, h.provisional || state.empty);
+  const scen = realize(800, 300, 1350, state.realization, 16, 1000);
+  const fn = FUNCTIONS.find(f => f.id === state.selected);
+  const shopHours = 40 - state.missionHours;
+
+  const main = document.getElementById("main");
+  const w = state.workspace;
+  if (w === "brief") {
+    const weights = [["Mission reach","30%"],["Beneficiary access","20%"],["Unrestricted stability","20%"],["Governance integrity","15%"],["Restriction compliance","10%"],["Continuity","5%"]];
+    main.innerHTML = `<article class="card">
+      <div class="row"><div><p class="kicker">Case brief</p><h2>${state.empty ? "Unscoped matter" : "North River Family Services"}</h2></div>
+      <span class="pill ${status === "critical" || status === "unresolved" ? "warn" : "soft"}">${esc(STATUS_LABEL[status])}</span></div>
+      <p class="muted">${state.empty
+        ? "Nothing has been collected. Health stays unknown. The queue below is what to ask next — not a score."
+        : "Synthetic community nonprofit. A family-support program and a donated-goods shop share one driver and one building. Neither track may be scored as the other."}</p>
+      <div class="grid2" style="margin-top:1rem">
+        <div class="card"><div class="muted sans">Protected objective</div>${state.empty ? "—" : "Households complete a stable housing plan"}</div>
+        <div class="card"><div class="muted sans">Authority</div>${state.empty ? "—" : "Board approves restricted-fund exceptions"}</div>
+        <div class="card"><div class="muted sans">Legal form</div>${state.empty ? "—" : "Nonprofit corporation · tax status not concluded here"}</div>
+        <div class="card"><div class="muted sans">Lifecycle</div>${state.empty ? "—" : "Mature program, restructuring the shop"}</div>
+      </div>
+      <div class="card soft" style="margin-top:1rem">
+        <p class="sans" style="margin:0"><b>Objective weights for this organization</b></p>
+        <p class="muted">Not the product-sales illustration (profitability 25%). These are the weights the case would carry once the board confirms them.</p>
+        <ul class="clean">${weights.map(([n,v]) => `<li><span>${n}</span><b>${v}</b></li>`).join("")}</ul>
+      </div>
+      ${state.empty ? `<ol class="q">${DISCOVERY.map((q,i) => `<li><span class="id">${String(i+1).padStart(2,"0")}</span><span>${esc(q)}</span></li>`).join("")}</ol>` : ""}
+    </article>`;
+  } else if (w === "parties") {
+    main.innerHTML = `<h2>Four parties, not one customer</h2>
+      <p class="muted">The person helped, the person who pays, the person who gives, and the body that governs are different relationships.</p>
+      <div class="grid2">${PARTIES.map(([t,d]) => `<article class="card"><h3>${t}</h3><p class="muted">${state.empty ? "Not identified. Do not assume." : esc(d)}</p></article>`).join("")}</div>`;
+  } else if (w === "functions") {
+    main.innerHTML = `<div class="row"><h2>Thirteen functions, mission names</h2>
+      <div><button class="pill ${state.lens==="mission"?"on":""}" id="lens-m" type="button">Mission lens</button>
+      <button class="pill ${state.lens==="sales"?"on":""}" id="lens-s" type="button">Sales labels</button></div></div>
+      ${state.lens==="sales" ? `<p class="card warn sans">Comparison only. These names are not scored. A nonprofit is not a retailer with the word “customer” replaced.</p>` : ""}
+      <div class="card" style="padding:0;overflow:hidden">${FUNCTIONS.map(f => {
+        const mode = f.id === "F03" ? state.f03 : f.mode;
+        const name = state.lens === "mission" ? f.mission : f.sales;
+        return `<button class="fn ${state.selected===f.id?"on":""}" data-fn="${f.id}" type="button"><span class="id">${f.id}</span><span><b class="sans">${esc(name)}</b><br><span class="muted">${mode === "not_applicable" ? "Not applicable" : mode} · ${esc(f.metric)}</span></span></button>`;
+      }).join("")}</div>`;
+  } else if (w === "funds") {
+    main.innerHTML = `<h2>Restricted and unrestricted, kept apart</h2>
+      <p class="muted">Restricted cash is not a balance available for payroll. The shop’s surplus is not mission reach.</p>
+      ${state.empty ? `<p class="card sans">No ledger. Unknown is an em dash, not zero. Do not estimate a surplus.</p>` : `
+      <div class="grid3">
+        <article class="card stat"><span class="muted sans">Restricted program grant</span><b>${money(42000)}</b><span class="muted sans">Housing plans only</span></article>
+        <article class="card stat"><span class="muted sans">Unrestricted gifts</span><b>${money(18000)}</b><span class="muted sans">Available for operations</span></article>
+        <article class="card stat"><span class="muted sans">Shop proceeds</span><b>${money(8000)}</b><span class="muted sans">Separate track · donated goods</span></article>
+      </div>
+      <article class="card">
+        <h3>Shared driver · 40 hours</h3>
+        <p class="muted">One van, one person. Hours assigned to the mission route cannot also be assigned to shop pickups.</p>
+        <label class="sans">Mission route hours: ${state.missionHours}
+          <input id="hours" type="range" min="0" max="40" value="${state.missionHours}" />
+        </label>
+        <p class="sans">Mission ${state.missionHours} h · Shop ${shopHours} h · Counted once ${state.missionHours + shopHours} h.</p>
+      </article>
+      <label class="line card"><input id="payroll" type="checkbox" ${state.payrollFail?"checked":""}/>
+        <span><b>Record a payroll shortfall on unrestricted cash.</b><br><span class="muted">This is a critical fail. It overrides any healthy program score. Restricted grant dollars do not clear it.</span></span>
+      </label>`}`;
+  } else if (w === "health") {
+    const dims = DIMENSIONS.map(dim => `<label class="line"><input type="checkbox" data-dim="${dim}" ${state.scores[dim]!=null?"checked":""}/>
+      <span>${dim.replaceAll("_"," ")}</span><span class="muted">${Math.round(WEIGHTS[dim]*100)}%</span></label>`).join("");
+    const factor = (label, key) => {
+      const v = state[key];
+      return `<label class="sans">${label}: ${v == null ? "unknown" : v.toFixed(2)}
+        <input type="range" data-factor="${key}" min="0" max="100" ${v==null?"disabled":""} value="${Math.round((v||0)*100)}" /></label>`;
+    };
+    main.innerHTML = `<h2>Health and coverage, apart</h2>
+      <p class="muted">A high score with thin evidence stays provisional. A critical fail is not averaged away. Human readiness is a task condition, not a ranking of people.</p>
+      <div class="grid3">
+        <article class="card stat"><span class="muted sans">Function health</span><b>${h.score==null?"—":h.score.toFixed(1)}</b><span class="muted sans">${state.empty?"No evidence": band(h.score) + " · " + (h.provisional?"provisional":"coverage sufficient")}</span></article>
+        <article class="card stat"><span class="muted sans">Evidence coverage</span><b>${h.coverage==null?"—":h.coverage.toFixed(0)+"%"}</b><span class="muted sans">Weight assessed / weight applicable</span></article>
+        <article class="card stat"><span class="muted sans">System status</span><b style="font-size:1.15rem">${esc(STATUS_LABEL[status])}</b><span class="muted sans">Not blended with the score</span></article>
+      </div>
+      ${state.empty ? "" : `<fieldset class="card"><legend class="sans">Evidence on the delivery function</legend>
+        <p class="muted">Start with only effectiveness. Coverage is 25% until more dimensions are actually supported.</p>
+        <div class="grid2">${dims}</div></fieldset>`}
+      <article class="card">
+        <h3>Task readiness · intake scheduling</h3>
+        <p class="muted">R = capability × opportunity × motivation. A heuristic bottleneck, not a probability of compliance and not an employment score.</p>
+        ${state.empty ? `<p>− insufficient evidence. Point estimate unknown.</p>` : `<div class="grid3">${factor("Capability","capability")}${factor("Opportunity","opportunity")}${factor("Motivation","motivation")}</div>`}
+        <p class="sans">Point ${ready.point==null?"—":ready.point.toFixed(3)} · range ${ready.range[0].toFixed(3)}–${ready.range[1].toFixed(3)} · conditional</p>
+        <button class="pill" id="unk-m" type="button" ${state.empty?"disabled":""}>Mark motivation unknown</button>
+      </article>`;
+  } else if (w === "scenario") {
+    const points = [0, 0.3, 0.6, 0.7, 0.8, 1].map(r => ({ r, ...realize(800, 300, 1350, r, 16, 1000) }));
+    const nets = points.map(p => p.incremental);
+    const min = Math.min(...nets), max = Math.max(...nets);
+    const coords = points.map((p,i) => {
+      const x = 40 + i * 70;
+      const y = 180 - ((p.incremental - min) / (max - min || 1)) * 140;
+      return `${x},${y}`;
+    }).join(" ");
+    main.innerHTML = `<h2>Service capacity, not a sales forecast</h2>
+      <p class="muted">Baseline delivery 800 encounters. A scheduling change could add 300. Demand from eligible households is 1,350. Realization is an assumption you set — it is not the readiness index.</p>
+      ${state.empty ? `<p class="card sans">No capacities on file. Collect them before simulating. An unknown constraint is an upper bound, not a bottleneck.</p>` : `
+      <p class="sans">Serial path binds at <b>delivery</b> — throughput 800 while eligibility can screen 1,400. Speeding eligibility does not deliver more households.</p>
+      <label class="sans">Additional capacity realized: ${Math.round(state.realization*100)}%
+        <input id="real" type="range" min="0" max="100" value="${Math.round(state.realization*100)}" />
+      </label>
+      <div class="grid3">
+        <article class="card stat"><span class="muted sans">Encounters</span><b>${scen.throughput}</b><span class="muted sans">Baseline ${scen.baseline}</span></article>
+        <article class="card stat"><span class="muted sans">Unrestricted net</span><b>${money(scen.incremental)}</b><span class="muted sans">After $1,000 recurring · $16 per added encounter</span></article>
+        <article class="card stat"><span class="muted sans">Break-even</span><b>${scen.breakEvenUnits} encounters</b><span class="muted sans">${(scen.breakEvenRealization*100).toFixed(1)}% of the added capacity</span></article>
+      </div>
+      <div class="card"><svg viewBox="0 0 400 220" role="img" aria-label="Unrestricted net against realization">
+        <polyline fill="none" stroke="#8c5a32" stroke-width="2" points="${coords}" />
+        ${points.map((p,i) => `<text x="${40+i*70}" y="210" font-size="11" fill="#6d645b" text-anchor="middle">${Math.round(p.r*100)}%</text>`).join("")}
+      </svg>
+      <p class="muted">Synthetic. No probability is assigned. 0% realization loses the $1,000 cost; about 21% covers it.</p></div>`}`;
+  } else {
+    const actions = [
+      [gate({ prohibited: true, mandatory: true }), "Spend the housing grant on general payroll", "Purpose clause does not allow it. Score is irrelevant."],
+      [gate({ refer: true }), "Conclude unrelated-business tax treatment of the shop", "Track the activity. Refer a qualified reviewer. No automated legal result."],
+      [state.payrollFail ? gate({ mandatory: true }) : "observe", "Protect current households if payroll cannot be met", "Mandatory review when payroll fails. Separate from the opportunity list."],
+      [gate({ blocked: true }), "Automate intake before the restricted-fund ledger is reconciled", "Prerequisite order: reconcile → automate. Automation stays blocked until reconcile is done."],
+      [gate({}), "Pilot Saturday delivery on the mission route", "Eligible. Uses only hours not already given to the shop. Reversible. Measure encounters completed."]
+    ];
+    main.innerHTML = `<h2>Gates before rank</h2>
+      <p class="muted">A high mission impact does not make a prohibited use of funds eligible. The lab proposes. A person approves. Nothing here is executed.</p>
+      ${actions.map(([st, title, detail]) => `<article class="card ${st==="prohibited"||st==="blocked"?"warn":""}">
+        <p class="kicker">${esc(String(st).replaceAll("_"," "))}</p><h3>${esc(title)}</h3><p class="muted">${esc(detail)}</p></article>`).join("")}`;
+  }
+
+  const modeNote = state.f03 === "not_applicable" && fn.id === "F03"
+    ? `<p class="muted">Reason required: this organization does not transform goods. The function stays in the model so the omission is explicit.</p>` : "";
+  document.getElementById("inspector").innerHTML = `<p class="kicker">Inspector</p>
+    <h2>${fn.id}</h2>
+    <p><b>${esc(state.lens==="mission"?fn.mission:fn.sales)}</b></p>
+    <p class="muted">${esc(fn.purpose)}</p>
+    <p class="sans">${esc(fn.adaptation)}</p>
+    ${fn.id==="F03" && !state.empty ? `<label class="sans">Implementation
+      <select id="f03mode">
+        <option value="internal" ${state.f03==="internal"?"selected":""}>Internal service provision</option>
+        <option value="external" ${state.f03==="external"?"selected":""}>External partner delivers</option>
+        <option value="not_applicable" ${state.f03==="not_applicable"?"selected":""}>Not applicable — reason required</option>
+      </select></label>` : ""}
+    ${modeNote}
+    <p class="sans"><span class="muted">Use</span><br>${esc(fn.metric)}</p>
+    <p class="sans"><span class="muted">Do not use</span><br>${esc(fn.rejected)}</p>
+    <p class="sans"><span class="muted">Confidence</span><br>${state.empty ? "Unknown" : h.provisional ? "Low — coverage under 70%" : "Separate from the score"}</p>
+    <p class="muted">Decision support only. No hiring, firing, contact, or posting. Human conditions are not a personnel file.</p>`;
+}
+
+document.body.addEventListener("click", (e) => {
+  const t = e.target;
+  if (t.id === "btn-river") state.empty = false;
+  else if (t.id === "btn-empty") state.empty = true;
+  else if (t.dataset && t.dataset.ws) state.workspace = t.dataset.ws;
+  else if (t.id === "lens-m") state.lens = "mission";
+  else if (t.id === "lens-s") state.lens = "sales";
+  else if (t.dataset && t.dataset.fn) state.selected = t.dataset.fn;
+  else if (t.id === "unk-m") state.motivation = null;
+  else return;
+  render();
+});
+document.body.addEventListener("change", (e) => {
+  const t = e.target;
+  if (t.id === "payroll") state.payrollFail = t.checked;
+  else if (t.id === "f03mode") state.f03 = t.value;
+  else if (t.dataset && t.dataset.dim) {
+    const dim = t.dataset.dim;
+    if (t.checked) state.scores[dim] = dim === "effectiveness" ? 75 : 70;
+    else delete state.scores[dim];
+  } else return;
+  render();
+});
+document.body.addEventListener("input", (e) => {
+  const t = e.target;
+  if (t.id === "hours") state.missionHours = Number(t.value);
+  else if (t.id === "real") state.realization = Number(t.value) / 100;
+  else if (t.dataset && t.dataset.factor) state[t.dataset.factor] = Number(t.value) / 100;
+  else return;
+  render();
+});
+render();
+</script>
+</body>
+</html>
