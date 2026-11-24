@@ -110,7 +110,7 @@ const DISCOVERY = [
   "Which people, vehicles, or rooms are shared by the mission and any earned-income activity?",
   "What would a qualified reviewer need before any tax, employment, or legal conclusion?"
 ];
-const WORKSPACES = ["brief","parties","functions","funds","health","scenario","actions"];
+const WORKSPACES = ["brief","parties","functions","funds","health","scenario","actions","design"];
 const STATUS_LABEL = {
   critical: "Critical — review now",
   unresolved: "Unresolved critical condition",
@@ -189,13 +189,119 @@ const state = {
   opportunity: 0.2,
   motivation: 0.8,
   missionHours: 24,
-  f03: "internal"
+  f03: "internal",
+  doc: "application"
 };
 
 function esc(s) {
   return String(s).replace(/[&<>"]/g, function (c) {
     return "&#" + c.charCodeAt(0) + ";";
   });
+}
+
+function handoff() {
+  const h = health(state.empty ? {} : state.scores);
+  const ready = readiness(state.empty ? null : state.capability, state.empty ? null : state.opportunity, state.empty ? null : state.motivation);
+  const shop = 40 - state.missionHours;
+  const scen = realize(800, 300, 1350, state.realization, 16, 1000);
+  if (state.empty) {
+    const questions = DISCOVERY.map((q, i) => (i + 1) + ". " + q).join("\n");
+    return {
+      ready: false,
+      hold: "No evidenced analysis. Design is held.",
+      build: [],
+      wait: ["Evidence shell that stores unknowns and does not score them"],
+      refuse: ["Any tool that fills a blank case with estimated numbers"],
+      application: "# Application blueprint — held\n\nDo not design software yet. The analysis has no evidenced facts, and a blueprint written now would be fiction.\n\n" + questions + "\n\nAllowed interim build: a blank case file. No scores, no fund movements, no invented capacity.",
+      operator: "# Operator-AI tool contract — held\n\nDo not give a company model these tools against an empty case. The model must not estimate a surplus, a route, a score, or a headcount."
+    };
+  }
+  const payroll = state.payrollFail
+    ? "Payroll is a critical fail on unrestricted cash. Restricted funds are not the remedy."
+    : "Payroll currently passes. The test stays in the tool so a later fail overrides the score.";
+  const application = [
+    "# Mission desk — application blueprint",
+    "",
+    "Fixture: synthetic. Do not treat the numbers as a real organization.",
+    "Case: North River Family Services.",
+    "Protected objective: Households complete a stable housing plan.",
+    "Authority: Board approves restricted-fund exceptions.",
+    "PROVISIONAL — coverage " + Math.round(h.coverage) + "%. Health " + (h.score == null ? "unknown" : h.score.toFixed(1)) + " (" + band(h.score) + "). Show the word provisional beside every score.",
+    payroll,
+    "",
+    "## Needs the analysis supports",
+    "- Capture missing performance dimensions before a score is treated as decided. Coverage is " + Math.round(h.coverage) + "%.",
+    "- Schedule delivery. It binds at 800 while eligibility can screen 1,400 and demand is 1,350. Do not add intake ahead of delivery.",
+    "- Count the shared driver once. Mission " + state.missionHours + " h, shop " + shop + " h, total 40.",
+    "- Keep three tracks: restricted $42,000 for housing plans only, unrestricted $18,000, shop $8,000.",
+    "- Do not build a tax conclusion, a personnel score, or a sales customer.",
+    "",
+    "## What to build",
+    "One local application, three modules, one case file.",
+    "Module A — Evidence. Dimensions stay null until supported.",
+    "Module B — Stewardship. A posting from the restricted track to payroll is rejected.",
+    "Module C — Capacity. Serial bound, shared hours, realization as an assumption.",
+    "At " + Math.round(state.realization * 100) + "% realization the fixture yields " + scen.throughput + " encounters, unrestricted net " + money(scen.incremental) + ", break-even " + scen.breakEvenUnits + " added encounters.",
+    "",
+    "## Invariants",
+    "1. Missing is null, never zero.",
+    "2. Coverage under 70% forces provisional.",
+    "3. A payroll fail stays visible beside any score.",
+    "4. Restricted cash is not available for operations.",
+    "5. Mission hours plus the shop equal 40.",
+    "6. Throughput is the minimum of the known steps, and only when every step is known.",
+    "7. Realization is not readiness.",
+    "8. Readiness is capability × opportunity × motivation for a task. Point now: " + (ready.point == null ? "unknown" : ready.point.toFixed(3)) + ". It is not attached to a person.",
+    "9. Prohibited beats mandatory. The model does not execute.",
+    "10. Intake automation waits until the restricted-fund ledger is reconciled.",
+    "",
+    "## Builder handoff",
+    "Implement the three modules and the invariants. Do not add a customer object, a tax conclusion, or a personnel score. Where this document and a sales template disagree, this document wins."
+  ].join("\n");
+  const operator = [
+    "# Mission desk — operator-AI tool contract",
+    "",
+    "The company model performs the same functions by calling tools. It proposes. A person approves. It does not post, pay, hire, or conclude law.",
+    payroll,
+    "Every reply that cites the score must say provisional.",
+    "",
+    "Tools, each deterministic. The model must not do the arithmetic itself when a tool exists:",
+    "- assess_coverage — score, coverage, provisional. Refuses zero for a missing score.",
+    "- fund_tracks — three balances. Refuses a blended total.",
+    "- flag_payroll — pass, fail, or unknown from unrestricted cash only.",
+    "- allocate_hours — mission " + state.missionHours + ", shop " + shop + ", counted once. Refuses a split past 40.",
+    "- serial_capacity — binding step is delivery, throughput 800. Refuses naming a bottleneck while an input is missing.",
+    "- service_scenario — assumption, not a probability. At the current realization: " + scen.throughput + " encounters, net " + money(scen.incremental) + ".",
+    "- task_readiness — product of the three factors for one task. Refuses storing it on a person.",
+    "- gate_action — prohibited, then refer, then mandatory, then blocked. Refuses executing.",
+    "- reconcile_before_automate — reconcile, then automate. Refuses starting the later step early.",
+    "",
+    "## Session",
+    "1. If a critical field is null, stop and name it.",
+    "2. Call assess_coverage and flag_payroll before any growth suggestion.",
+    "3. Call serial_capacity before recommending more of any step. Speeding eligibility is not supported.",
+    "4. Call gate_action. If prohibited, refer, or blocked, say that word and stop.",
+    "",
+    "Do not add tools for payment, mail, hiring, or legal classification."
+  ].join("\n");
+  return {
+    ready: true,
+    hold: "Design is allowed, and it is provisional. Coverage is under 70%.",
+    build: [
+      "Evidence module — record dimensions, show coverage, keep provisional visible",
+      "Stewardship module — three tracks, payroll test, reject restricted-to-payroll",
+      "Capacity module — one shared pool, serial bound, realization as an assumption"
+    ],
+    wait: ["Intake automation, until the restricted-fund ledger is reconciled"],
+    refuse: [
+      "Sales conversion and a single customer object",
+      "A tax or unrelated-business conclusion",
+      "A score attached to a person",
+      "A blended cash balance"
+    ],
+    application,
+    operator
+  };
 }
 
 function render() {
@@ -335,6 +441,24 @@ function render() {
         ${points.map((p,i) => `<text x="${40+i*70}" y="210" font-size="11" fill="#6d645b" text-anchor="middle">${Math.round(p.r*100)}%</text>`).join("")}
       </svg>
       <p class="muted">Synthetic. No probability is assigned. 0% realization loses the $1,000 cost; about 21% covers it.</p></div>`}`;
+  } else if (w === "design") {
+    const pack = handoff();
+    const text = state.doc === "application" ? pack.application : pack.operator;
+    const col = (title, items, emptyNote) => `<article class="card"><p class="kicker">${title}</p>${items.length ? `<ul class="clean" style="display:block">${items.map(i => `<li style="display:block;border:0;padding:0.35rem 0">${esc(i)}</li>`).join("")}</ul>` : `<p class="sans">${esc(emptyNote)}</p>`}</article>`;
+    main.innerHTML = `<h2>Design from the analysis</h2>
+      <p class="muted">This reads the case on screen and writes two handoffs: an application a developer can build, and the tools a company’s own AI would call to do the same work. It does not invent a need the analysis did not state.</p>
+      <p class="card ${pack.ready ? "" : "warn"} sans">${esc(pack.hold)}</p>
+      <div class="grid3">
+        ${col("Build", pack.build, "Nothing. The case is not evidenced.")}
+        ${col("Wait", pack.wait, "Nothing waiting.")}
+        ${col("Do not build", pack.refuse, "None.")}
+      </div>
+      <div>
+        <button class="pill ${state.doc==="application"?"dark":""}" id="doc-app" type="button">Application blueprint</button>
+        <button class="pill ${state.doc==="operator"?"dark":""}" id="doc-ai" type="button">Company AI tools</button>
+        <button class="pill on" id="copy-doc" type="button">Copy handoff</button>
+      </div>
+      <pre class="card sans" style="white-space:pre-wrap">${esc(text)}</pre>`;
   } else {
     const actions = [
       [gate({ prohibited: true, mandatory: true }), "Spend the housing grant on general payroll", "Purpose clause does not allow it. Score is irrelevant."],
@@ -378,6 +502,14 @@ document.body.addEventListener("click", (e) => {
   else if (t.id === "lens-s") state.lens = "sales";
   else if (t.dataset && t.dataset.fn) state.selected = t.dataset.fn;
   else if (t.id === "unk-m") state.motivation = null;
+  else if (t.id === "doc-app") state.doc = "application";
+  else if (t.id === "doc-ai") state.doc = "operator";
+  else if (t.id === "copy-doc") {
+    const pack = handoff();
+    const text = state.doc === "application" ? pack.application : pack.operator;
+    navigator.clipboard.writeText(text).catch(() => {});
+    return;
+  }
   else return;
   render();
 });
